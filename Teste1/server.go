@@ -10,8 +10,7 @@ func main() {
 
 	fmt.Println("Launching server...")
 
-	// listen on all interfaces
-	ln, _ := net.Listen("tcp", ":8081")
+	ln, _ := net.Listen("tcp", ":8082")
 
 	// accept connection on port
 	conn, _ := ln.Accept()

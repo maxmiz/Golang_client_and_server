@@ -7,30 +7,28 @@ import (
 	"os"
 )
 
+func send_message(r *bufio.Reader, conexao net.Conn, mensagem_aux string) {
+	fmt.Printf(mensagem_aux)
+	text, _ := r.ReadString('\n')
+	fmt.Fprintf(conexao, mensagem_aux+" "+text+"\n")
+}
+
 func main() {
 
-	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
+	conn, _ := net.Dial("tcp", "127.0.0.1:8082")
 	for {
 
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Text to send: ")
+		//fmt.Print("Text to send: ")
+
 		//Cliente
-		text, _ := reader.ReadString('\n')
-		// send to socket
-		fmt.Fprintf(conn, "Client: \n")
+		send_message(reader, conn, "Cliente:")
 
 		//Mensagem
-		text, _ = reader.ReadString('\n')
-		// send to socket
-		fmt.Fprintf(conn, text+"\n")
+		send_message(reader, conn, "Mensagem:")
 
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 		fmt.Print("Message from server: " + message)
 	}
 
-}
-
-func send_message(r *reader) {
-	text, _ := r.ReadString('\n')
-	fmt.Fprintf()
 }
