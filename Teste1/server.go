@@ -19,11 +19,12 @@ func main() {
 	for {
 
 		//Nome do cliente
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Client:", string(message))
+		NomeCliente, _ := bufio.NewReader(conn).ReadString('\n')
+		//fmt.Print(string(message))
 		//Mensagem do cliente
-		message, _ = bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Message Received:", string(message))
+		MenssagemCliente, _ := bufio.NewReader(conn).ReadString('\n')
+		//fmt.Print("Message Received:", string(message))
+		fmt.Println("[" + string(NomeCliente) + string(MenssagemCliente))
 
 		conn.Write([]byte("OK\n"))
 	}
