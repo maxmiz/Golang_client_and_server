@@ -29,7 +29,7 @@ func main() {
 		reader := bufio.NewReader(os.Stdin)
 
 		//Cliente
-		sendClient(ross.nomeCliente, conn, "Cliente:")
+		sendClient(ross.nomeCliente, conn)
 
 		//Mensagem
 		sendMessage(reader, conn, "Mensagem:")
@@ -46,7 +46,6 @@ func sendMessage(r *bufio.Reader, conexao net.Conn, mensagemAux string) {
 	fmt.Fprintf(conexao, text+"\n")
 }
 
-func sendClient(text string, conexao net.Conn, mensagemAux string) {
-	//fmt.Printf(mensagemAux)
+func sendClient(text string, conexao net.Conn) {
 	fmt.Fprintf(conexao, text+"\n")
 }
