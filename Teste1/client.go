@@ -30,8 +30,6 @@ func main() {
 	initArgs(&ross)
 	fmt.Println(ross.nomeCliente)
 
-	//conn, _ := net.Dial("tcp", "127.0.0.1:8082")
-
 	conn, _ := net.Dial("tcp", ross.ip+":"+ross.port)
 	for {
 

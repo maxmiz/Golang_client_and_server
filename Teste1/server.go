@@ -38,7 +38,7 @@ func main() {
 
 	// run loop forever (or until ctrl-c)
 	for {
-
+		defer fmt.Println("We have problems")
 		//Nome do cliente
 		NomeCliente, _ := bufio.NewReader(conn).ReadString('\n')
 		NomeCliente = strings.TrimRight(NomeCliente, "\n")
