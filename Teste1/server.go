@@ -6,11 +6,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
+	"math/rand"
 	"net"
+	"strconv"
 	"strings"
-
-	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type Serveroptions struct {
@@ -33,10 +33,30 @@ func main() {
 
 	ln, _ := net.Listen("tcp", serverInstania.ip+":"+serverInstania.port)
 
-	// accept connection on port
 	conn, _ := ln.Accept()
+	//Diffie-Hellman
 
-	// run loop forever (or until ctrl-c)
+	X := converte(Diffie_part1(conn))
+	Y := converte(Diffie_part1(conn))
+
+	Bob := rand.Intn(1000-10) + 10
+	//fmt.Println(X, Y, Bob)
+
+	Bob_Ra := (Y ^ Bob) % X
+	fmt.Println("Bob_ra:", Bob_Ra)
+
+	Alice_Ra, _ := bufio.NewReader(conn).ReadString('\n')
+	Alice_Ra = strings.TrimRight(Alice_Ra, "\n")
+	fmt.Println("Alice_Ra: ", Alice_Ra)
+	time.Sleep(100 * time.Millisecond)
+
+	fmt.Fprintln(conn, Bob_Ra)
+	//Diffie-Hellman
+
+	k := (Y ^ (converte(Alice_Ra) * Bob_Ra)) % X
+	//k := (converte(Alice_Ra) ^ Bob) % X
+	fmt.Println(k)
+
 	for {
 		defer fmt.Println("We have problems")
 		//Nome do cliente
@@ -49,10 +69,11 @@ func main() {
 
 		Hash, _ := bufio.NewReader(conn).ReadString('\n')
 		Hash = strings.TrimRight(Hash, "\n")
+		fmt.Println(Hash)
+		fmt.Println(len(Hash))
 		if Hash == Md5EmptyHash(NomeCliente+MenssagemCliente) {
 
 			fmt.Println("[" + string(NomeCliente) + "] " + string(MenssagemCliente))
-			//fmt.Println(Hash)
 
 			conn.Write([]byte("OK\n"))
 		} else {
@@ -61,19 +82,19 @@ func main() {
 	}
 }
 
-func comparePasswords(hashedPwd string, plainPwd []byte) bool {
-	byteHash := []byte(hashedPwd)
-	err := bcrypt.CompareHashAndPassword(byteHash, plainPwd)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-
-	return true
-}
-
 func Md5EmptyHash(message string) string {
 	h := md5.New()
 	io.WriteString(h, message)
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func converte(valor string) int {
+	x, _ := strconv.Atoi(valor)
+	return x
+}
+
+func Diffie_part1(conexao net.Conn) string {
+	//Função usada para receber o "q" depois o "p" do Diffie
+	aux, _ := bufio.NewReader(conexao).ReadString('\n')
+	return strings.TrimRight(aux, "\n")
 }
