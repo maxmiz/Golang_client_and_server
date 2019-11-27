@@ -10,10 +10,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"math/cmplx"
 	"math/rand"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -45,6 +47,7 @@ func InicializaArgumentos(dados *ArgumentosServer) {
 }
 
 func main() {
+	var NomeCliente string
 	var contador = 0
 	var serverInstania ArgumentosServer
 	InicializaArgumentos(&serverInstania)
@@ -85,33 +88,41 @@ func main() {
 	fmt.Println("key: ", InstanciaDiffie.key)
 
 	for {
-		NomeCliente, _ := bufio.NewReader(conn).ReadString('\n')
+		NomeCliente, _ = bufio.NewReader(conn).ReadString('\n')
 		mensagem, _ := bufio.NewReader(conn).ReadString('\n')
-		HMACMD5FromClient, _ := bufio.NewReader(conn).ReadString('\n')
-		if breakline(HMACMD5FromClient) == HMAC(Md5EmptyHash(breakline(NomeCliente)+mensagem+strconv.Itoa(contador)), float64ToByte(InstanciaDiffie.key.ParteImaginaria)) {
-			//fmt.Println("["+breakline(NomeCliente)+"]: ", breakline(mensagem))
-			imprimir(NomeCliente, mensagem)
-			fmt.Fprintln(conn, "OK")
-		} else {
-			fmt.Fprintln(conn, "Errroouuuu !!!!")
-		}
-		contador++
-	}
+		HMACFromClient, _ := bufio.NewReader(conn).ReadString('\n')
+		MD5 := Md5EmptyHash(breakline(NomeCliente) + mensagem)
 
+		if breakline(mensagem) != "quit" {
+
+			if breakline(HMACFromClient) == HMAC(Md5EmptyHash(breakline(NomeCliente)+mensagem+strconv.Itoa(contador)), float64ToByte(InstanciaDiffie.key.ParteImaginaria)) && VereficaArquivo(breakline(NomeCliente)+".dat", MD5) == false {
+				//fmt.Println("["+breakline(NomeCliente)+"]: ", breakline(mensagem))
+				CriaArquivo(breakline(NomeCliente)+".dat", MD5)
+				imprimir(NomeCliente, mensagem)
+				fmt.Fprintln(conn, "OK")
+			} else {
+				fmt.Fprintln(conn, "Errroouuuu !!!!")
+			}
+			contador++
+
+		} else {
+			fmt.Fprintln(conn, "Ok...Adeus")
+			os.Remove(breakline(NomeCliente) + ".dat")
+			conn.Close()
+			break
+		}
+	}
 }
 func imprimir(nome string, mensagem string) {
 	fmt.Println(Bold(Green("[")), Gray(1-1, breakline(nome)).BgGray(24-1), Bold(Green("]:")), " ", Cyan(breakline(mensagem)))
 }
-
 func breakline(entrada string) string {
 	return strings.Replace(entrada, "\n", "", -1)
 }
-
 func recebefloat(conn net.Conn) string {
 	X, _ := bufio.NewReader(conn).ReadString('\n')
 	return X
 }
-
 func InicializaEstruturaDiffie(InstanciaDiffieiliar *EstruturaDiffie) {
 	rand.Seed(time.Now().UnixNano())
 	InstanciaDiffieiliar.modulo.ParteReal = rand.Float64()
@@ -123,7 +134,6 @@ func calculo(raiz, choice, modulo ComplexDiffie) (float64, float64) {
 	InstanciaDiffie = (InstanciaDiffie - (complex(choice.ParteReal, choice.ParteImaginaria) * (InstanciaDiffie / complex(choice.ParteReal, choice.ParteImaginaria))))
 	return real(InstanciaDiffie), imag(InstanciaDiffie)
 }
-
 func calculo2(raiz, choice, choice2, modulo ComplexDiffie) (float64, float64) {
 	//Faz terceira etapa do diffie
 	InstanciaDiffie := cmplx.Pow(complex(raiz.ParteReal, raiz.ParteImaginaria), (complex(choice.ParteReal, choice.ParteImaginaria) * complex(choice2.ParteReal, choice2.ParteImaginaria)))
@@ -148,4 +158,34 @@ func float64ToByte(f float64) []byte {
 	var buf [8]byte
 	binary.BigEndian.PutUint64(buf[:], math.Float64bits(f))
 	return buf[:]
+}
+func CriaArquivo(arquivo string, MD5 string) {
+	f, err := os.OpenFile(arquivo, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
+	}
+	defer f.Close()
+	if _, err := f.WriteString(MD5 + "\n"); err != nil {
+		log.Println(err)
+	}
+}
+func VereficaArquivo(arquivo string, MD5 string) bool {
+
+	file, _ := os.Open(arquivo)
+
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		if scanner.Text() == MD5 {
+			fmt.Println("arquivo: ", scanner.Text())
+			fmt.Println(len(scanner.Text()))
+			fmt.Println("servidor: ", MD5)
+			fmt.Println(len(MD5))
+			return true
+		}
+	}
+	return false
+
 }

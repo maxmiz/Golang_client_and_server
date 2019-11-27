@@ -103,8 +103,12 @@ func main() {
 		sendMessage(reader, conn, ClienteInstancia.nomeCliente, contador, float64ToByte(InstanciaDiffie.key.ParteImaginaria))
 		contador++
 		MenssagemDeConfirmacao, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Println(breakline(MenssagemDeConfirmacao))
-
+		if breakline(MenssagemDeConfirmacao) != "Ok...Adeus" {
+			fmt.Println(breakline(MenssagemDeConfirmacao))
+		} else {
+			conn.Close()
+			break
+		}
 	}
 }
 
@@ -119,7 +123,6 @@ func sendMessage(r *bufio.Reader, conn net.Conn, nome_cliente string, contador i
 	//fmt.Println(HMAC(Md5EmptyHash(nome_cliente+text+strconv.Itoa(contador)), secret))
 
 }
-
 func calculo(raiz, choice, modulo ComplexDiffie) (float64, float64) {
 	//Faz terceira etapa do diffie
 	aux := cmplx.Pow(complex(raiz.ParteReal, raiz.ParteImaginaria), complex(choice.ParteReal, choice.ParteImaginaria))
@@ -127,15 +130,17 @@ func calculo(raiz, choice, modulo ComplexDiffie) (float64, float64) {
 	return real(aux), imag(aux)
 }
 func calculo2(raiz, choice, choice2, modulo ComplexDiffie) (float64, float64) {
-	//Faz terceira etapa do diffie
+	//Faz sexta etapa do Diffie
 	aux := cmplx.Pow(complex(raiz.ParteReal, raiz.ParteImaginaria), (complex(choice.ParteReal, choice.ParteImaginaria) * complex(choice2.ParteReal, choice2.ParteImaginaria)))
 	aux = (aux - (complex(choice.ParteReal, choice.ParteImaginaria) * (aux / complex(choice.ParteReal, choice.ParteImaginaria))))
 	return real(aux), imag(aux)
 }
 func breakline(entrada string) string {
+	//Remove quebra linha da mensagem pois eh um caracter invisivel
 	return strings.Replace(entrada, "\n", "", -1)
 }
 func recebefloat(conn net.Conn) string {
+	//Recebe parte real ou imaginaria do numero
 	X, _ := bufio.NewReader(conn).ReadString('\n')
 	return X
 }
