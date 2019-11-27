@@ -6,11 +6,8 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math/rand"
 	"net"
 	"strconv"
-	"strings"
-	"time"
 )
 
 type Serveroptions struct {
@@ -35,51 +32,55 @@ func main() {
 
 	conn, _ := ln.Accept()
 	//Diffie-Hellman
+	X, _ := bufio.NewReader(conn).ReadString('\n')
+	Y, _ := bufio.NewReader(conn).ReadString('\n')
+	//X := converte(Diffie_part1(conn))
+	//Y := converte(Diffie_part1(conn))
+	fmt.Println(X)
+	fmt.Println(Y)
+	/*
+		Bob := rand.Intn(1000-10) + 10
+		//fmt.Println(X, Y, Bob)
 
-	X := converte(Diffie_part1(conn))
-	Y := converte(Diffie_part1(conn))
+		Bob_Ra := (Y ^ Bob) % X
+		fmt.Println("Bob_ra:", Bob_Ra)
 
-	Bob := rand.Intn(1000-10) + 10
-	//fmt.Println(X, Y, Bob)
+		Alice_Ra, _ := bufio.NewReader(conn).ReadString('\n')
+		Alice_Ra = strings.TrimRight(Alice_Ra, "\n")
+		fmt.Println("Alice_Ra: ", Alice_Ra)
+		time.Sleep(100 * time.Millisecond)
 
-	Bob_Ra := (Y ^ Bob) % X
-	fmt.Println("Bob_ra:", Bob_Ra)
+		fmt.Fprintln(conn, Bob_Ra)
+		//Diffie-Hellman
 
-	Alice_Ra, _ := bufio.NewReader(conn).ReadString('\n')
-	Alice_Ra = strings.TrimRight(Alice_Ra, "\n")
-	fmt.Println("Alice_Ra: ", Alice_Ra)
-	time.Sleep(100 * time.Millisecond)
+		k := (Y ^ (converte(Alice_Ra) * Bob_Ra)) % X
+		//k := (converte(Alice_Ra) ^ Bob) % X
+		fmt.Println(k)
 
-	fmt.Fprintln(conn, Bob_Ra)
-	//Diffie-Hellman
+		for {
+			defer fmt.Println("We have problems")
+			//Nome do cliente
+			NomeCliente, _ := bufio.NewReader(conn).ReadString('\n')
+			NomeCliente = strings.TrimRight(NomeCliente, "\n")
+			//fmt.Print(string(message))
+			//Mensagem do cliente
+			MenssagemCliente, _ := bufio.NewReader(conn).ReadString('\n')
+			//MenssagemCliente = strings.TrimRight(MenssagemCliente, "\n")
 
-	k := (Y ^ (converte(Alice_Ra) * Bob_Ra)) % X
-	//k := (converte(Alice_Ra) ^ Bob) % X
-	fmt.Println(k)
+			Hash, _ := bufio.NewReader(conn).ReadString('\n')
+			Hash = strings.TrimRight(Hash, "\n")
+			fmt.Println(Hash)
+			fmt.Println(len(Hash))
+			if Hash == Md5EmptyHash(NomeCliente+MenssagemCliente) {
 
-	for {
-		defer fmt.Println("We have problems")
-		//Nome do cliente
-		NomeCliente, _ := bufio.NewReader(conn).ReadString('\n')
-		NomeCliente = strings.TrimRight(NomeCliente, "\n")
-		//fmt.Print(string(message))
-		//Mensagem do cliente
-		MenssagemCliente, _ := bufio.NewReader(conn).ReadString('\n')
-		//MenssagemCliente = strings.TrimRight(MenssagemCliente, "\n")
+				fmt.Println("[" + string(NomeCliente) + "] " + string(MenssagemCliente))
 
-		Hash, _ := bufio.NewReader(conn).ReadString('\n')
-		Hash = strings.TrimRight(Hash, "\n")
-		fmt.Println(Hash)
-		fmt.Println(len(Hash))
-		if Hash == Md5EmptyHash(NomeCliente+MenssagemCliente) {
-
-			fmt.Println("[" + string(NomeCliente) + "] " + string(MenssagemCliente))
-
-			conn.Write([]byte("OK\n"))
-		} else {
-			conn.Write([]byte("We have problems\n"))
+				conn.Write([]byte("OK\n"))
+			} else {
+				conn.Write([]byte("We have problems\n"))
+			}
 		}
-	}
+	*/
 }
 
 func Md5EmptyHash(message string) string {
@@ -96,5 +97,6 @@ func converte(valor string) int {
 func Diffie_part1(conexao net.Conn) string {
 	//Função usada para receber o "q" depois o "p" do Diffie
 	aux, _ := bufio.NewReader(conexao).ReadString('\n')
-	return strings.TrimRight(aux, "\n")
+	//return strings.TrimRight(aux, "\n")
+	return aux
 }

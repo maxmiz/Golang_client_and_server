@@ -6,11 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math/cmplx"
 	"math/rand"
 	"net"
-	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -19,6 +18,11 @@ type options struct {
 	ip          string
 	port        string
 }
+type numero struct {
+	primo  complex128
+	raiz   complex128
+	modulo complex128
+}
 
 func initArgs(dados *options) {
 	flag.StringVar(&dados.nomeCliente, "nome", "", "help")
@@ -26,50 +30,66 @@ func initArgs(dados *options) {
 	flag.StringVar(&dados.port, "port", "", "help")
 	flag.Parse()
 }
+func Gera(auxiliar *numero) {
+	rand.Seed(time.Now().UnixNano())
+	auxiliar.primo = complex(rand.Float64(), rand.Float64())
+	auxiliar.raiz = complex(rand.Float64(), rand.Float64())
+	auxiliar.modulo = complex(rand.Float64(), rand.Float64())
+}
+
 func main() {
 	var ross options
 	initArgs(&ross)
 	fmt.Println(ross.nomeCliente)
+	var vars_diffie numero
+	Gera(&vars_diffie)
+	fmt.Println(vars_diffie.primo)
+	fmt.Println(vars_diffie.raiz)
+	fmt.Println(vars_diffie.modulo)
+	fmt.Println(calculo(vars_diffie.primo, vars_diffie.raiz, vars_diffie.modulo))
 
 	conn, _ := net.Dial("tcp", ross.ip+":"+ross.port)
 	//Diffie-Hellman
-	rand.Seed(time.Now().UnixNano())
-	A := rand.Intn(1000-10) + 10
-	B := rand.Intn(1000-10) + 10
-	fmt.Fprintln(conn, A)
+	//rand.Seed(time.Now().UnixNano())
+	//A := rand.Intn(1000-10) + 10
+	//B := rand.Intn(1000-10) + 10
+	//fmt.Fprintln(conn, A)
 	time.Sleep(100 * time.Millisecond)
-	fmt.Fprintln(conn, B)
+	//fmt.Fprintln(conn, B)
 
-	Alice := rand.Intn(1000-10) + 10
-
-	Alice_Ra := (B ^ Alice) % A
-
-	fmt.Println("Alice_Ra: ", Alice_Ra)
+	Envia(conn, vars_diffie.primo)
 	time.Sleep(100 * time.Millisecond)
-	fmt.Fprintln(conn, Alice_Ra)
-	time.Sleep(100 * time.Millisecond)
-	Bob_Ra, _ := bufio.NewReader(conn).ReadString('\n')
-	Bob_Ra = strings.TrimRight(Bob_Ra, "\n")
-	fmt.Println("Bob_ra:", Bob_Ra)
+	Envia(conn, vars_diffie.raiz)
+	/*
+		Alice := rand.Intn(1000-10) + 10
 
-	//k := (converte(Bob_Ra) ^ Alice_Ra) % A
-	k := (B ^ (converte(Bob_Ra) * Alice_Ra)) % A
-	fmt.Println(k)
-	//Diffie-Hellman
-	for {
+		Alice_Ra := (B ^ Alice) % A
 
-		reader := bufio.NewReader(os.Stdin)
+		fmt.Println("Alice_Ra: ", Alice_Ra)
+		time.Sleep(100 * time.Millisecond)
+		fmt.Fprintln(conn, Alice_Ra)
+		time.Sleep(100 * time.Millisecond)
+		Bob_Ra, _ := bufio.NewReader(conn).ReadString('\n')
+		Bob_Ra = strings.TrimRight(Bob_Ra, "\n")
+		fmt.Println("Bob_ra:", Bob_Ra)
+		//k := (converte(Bob_Ra) ^ Alice_Ra) % A
+		k := (B ^ (converte(Bob_Ra) * Alice_Ra)) % A
+		fmt.Println(k)
+		//Diffie-Hellman
+		for {
 
-		//Cliente
-		sendClient(ross.nomeCliente, conn)
+			reader := bufio.NewReader(os.Stdin)
 
-		//Mensagem
-		sendMessage(reader, conn, "Mensagem:", ross.nomeCliente)
+			//Cliente
+			sendClient(ross.nomeCliente, conn)
 
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Message from server: " + message)
-		fmt.Println()
-	}
+			//Mensagem
+			sendMessage(reader, conn, "Mensagem:", ross.nomeCliente)
+
+			message, _ := bufio.NewReader(conn).ReadString('\n')
+			fmt.Print("Message from server: " + message)
+			fmt.Println()
+		}*/
 
 }
 
@@ -98,12 +118,13 @@ func converte(valor string) int {
 	return x
 }
 
-func Gera() complex128 {
-	rand.Seed(time.Now().UnixNano())
-	//random := rand.
-}
-
-func Envia(conexao net.Conn, mensagem string) {
+func Envia(conexao net.Conn, mensagem complex128) {
 	//Envia mensagem para a conexao aberta
 	fmt.Fprintln(conexao, mensagem)
+	//err := binary.Write(conexao)
+}
+
+func calculo(primo, raiz, modulo complex128) complex128 {
+	aux := cmplx.Pow(raiz, primo)
+	return aux - (primo * (aux / primo))
 }
