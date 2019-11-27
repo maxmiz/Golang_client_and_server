@@ -66,7 +66,7 @@ func main() {
 	InstanciaDiffie.raiz.ParteImaginaria, _ = strconv.ParseFloat(breakline(recebefloat(conn)), 64)
 	//Etapa2
 	rand.Seed(time.Now().UnixNano())
-	fmt.Println(time.Now().UnixNano())
+	//fmt.Println(time.Now().UnixNano())
 	//generator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	InstanciaDiffie.choice.ParteReal = rand.Float64()
 	InstanciaDiffie.choice.ParteImaginaria = rand.Float64()
@@ -80,9 +80,6 @@ func main() {
 	time.Sleep(100 * time.Millisecond)
 	fmt.Fprintln(conn, InstanciaDiffie.B.ParteImaginaria)
 
-	fmt.Println("Alice_from_server: ", InstanciaDiffie.A)
-
-	fmt.Println("Bob_from_server: ", InstanciaDiffie.B)
 	//Etapa6
 	InstanciaDiffie.key.ParteReal, InstanciaDiffie.key.ParteImaginaria = calculo2(InstanciaDiffie.raiz, InstanciaDiffie.B, InstanciaDiffie.A, InstanciaDiffie.modulo)
 	fmt.Println("key: ", InstanciaDiffie.key)
@@ -179,10 +176,10 @@ func VereficaArquivo(arquivo string, MD5 string) bool {
 
 	for scanner.Scan() {
 		if scanner.Text() == MD5 {
-			fmt.Println("arquivo: ", scanner.Text())
-			fmt.Println(len(scanner.Text()))
-			fmt.Println("servidor: ", MD5)
-			fmt.Println(len(MD5))
+			//fmt.Println("arquivo: ", scanner.Text())
+			//fmt.Println(len(scanner.Text()))
+			//fmt.Println("servidor: ", MD5)
+			//fmt.Println(len(MD5))
 			return true
 		}
 	}

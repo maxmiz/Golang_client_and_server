@@ -88,16 +88,16 @@ func main() {
 	InstanciaDiffie.B.ParteReal, _ = strconv.ParseFloat(breakline(recebefloat(conn)), 64)
 	InstanciaDiffie.B.ParteImaginaria, _ = strconv.ParseFloat(breakline(recebefloat(conn)), 64)
 
-	fmt.Println("Alice_from_client: ", InstanciaDiffie.A)
+	//fmt.Println("Alice_from_client: ", InstanciaDiffie.A)
 
-	fmt.Println("Bob_from_client: ", InstanciaDiffie.B)
+	//fmt.Println("Bob_from_client: ", InstanciaDiffie.B)
 
 	//Etapa6
 	InstanciaDiffie.key.ParteReal, InstanciaDiffie.key.ParteImaginaria = calculo2(InstanciaDiffie.raiz, InstanciaDiffie.B, InstanciaDiffie.A, InstanciaDiffie.modulo)
 	fmt.Println("key: ", InstanciaDiffie.key)
 
 	for {
-
+		fmt.Printf("Digite aqui: ")
 		reader := bufio.NewReader(os.Stdin)
 
 		sendMessage(reader, conn, ClienteInstancia.nomeCliente, contador, float64ToByte(InstanciaDiffie.key.ParteImaginaria))
