@@ -1,7 +1,7 @@
 # Trababalho de Segurança de Sistemas: Golang_client_and_server
 Membros: Rafael Beltran e Daniel Temp
 
-Intruções de execução:
+    Intruções de execução:
     Opção 1:
         Executar manualmente servidor e cliente:
             1º Para executar o servidor
@@ -37,9 +37,10 @@ Intruções de execução:
 
             2º Executar ./useRandomStrings.sh ira iniciar o servidor automaticamente depois o cliente. O cliente iniciado enviar mensagens automaticamente para o servidor.
 
-Requisitos do SO:
+    Requisitos do SO:
     xterm
-Requisitos externos do código:
+
+    Requisitos externos do código:
     "github.com/logrusorgru/aurora"
     "math/cmplx"
     "crypto/md5"
